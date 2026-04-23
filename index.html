@@ -16,48 +16,109 @@ body {
     color: white;
 }
 
+/* 🧊 Glass Card */
 .card {
-    width: 340px;
+    width: 360px;
     padding: 22px;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.06);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
     border: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
     text-align: center;
 }
 
+/* Title */
 h2 {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
 }
 
+/* Input */
 input {
     width: 100%;
     padding: 12px;
-    margin-top: 10px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(0,0,0,0.3);
+    margin-top: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(0,0,0,0.35);
     color: white;
     font-size: 14px;
     box-sizing: border-box;
+    transition: 0.2s;
 }
 
-button {
-    width: 100%;
-    padding: 12px;
-    margin-top: 10px;
+input:focus {
+    outline: none;
+    border-color: rgba(76,175,80,0.6);
+    box-shadow: 0 0 10px rgba(76,175,80,0.2);
+}
+
+/* =========================
+   SEGMENTED BUTTONS (ANIMATED)
+========================= */
+.modeWrapper {
+    position: relative;
+    display: flex;
+    margin-top: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.08);
+    padding: 4px;
+    overflow: hidden;
+}
+
+/* Sliding background */
+.slider {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 50%;
+    height: calc(100% - 8px);
     border-radius: 10px;
+    background: rgba(76,175,80,0.9);
+    transition: 0.35s ease;
+    z-index: 0;
+}
+
+/* Buttons */
+.modeBtn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1;
+    transition: 0.2s;
+}
+
+.modeBtn:hover {
+    opacity: 0.8;
+}
+
+/* Primary button */
+.primary {
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 12px;
     border: none;
     cursor: pointer;
-    font-size: 14px;
     font-weight: bold;
+    background: linear-gradient(135deg, #4CAF50, #3fa046);
+    box-shadow: 0 6px 20px rgba(76,175,80,0.25);
+    transition: 0.2s;
 }
 
-.primary { background: #4CAF50; }
-.toggle { background: rgba(255,255,255,0.1); color: white; }
+.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(76,175,80,0.35);
+}
 
+/* Output */
 .output {
     margin-top: 15px;
     font-size: 14px;
@@ -65,16 +126,23 @@ button {
     text-align: left;
     background: rgba(0,0,0,0.25);
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.06);
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .label { opacity: 0.7; font-size: 12px; }
 
-/* 📊 Pricing Box */
+/* Pricing box */
 .tierBox {
     margin-top: 12px;
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 12px;
     background: rgba(0,0,0,0.25);
     border: 1px solid rgba(255,255,255,0.08);
     text-align: left;
@@ -93,25 +161,53 @@ button {
 <body>
 
 <div class="card">
-    <h2 id="modeTitle">TR → Price</h2>
+    <h2 id="modeTitle">Training Receipts → Price</h2>
+
+    <!-- 🔥 Animated Toggle -->
+    <div class="modeWrapper">
+        <div class="slider" id="slider"></div>
+        <button class="modeBtn" onclick="setMode('TR')">Training Receipts</button>
+        <button class="modeBtn" onclick="setMode('MONEY')">Money</button>
+    </div>
 
     <input id="inputField" placeholder="Enter TR (e.g. 100k, 100,000, 1m)">
 
     <button class="primary" onclick="calculate()">Calculate</button>
-    <button class="toggle" onclick="toggleMode()">Switch Mode</button>
 
     <div class="output" id="output"></div>
 
-    <!-- 📊 PRICING TIERS -->
     <div class="tierBox">
         <h3>Pricing Tiers</h3>
-        <div>100k – 199,000 → <b>$0.60 / 1k</b></div>
+        <div>100k – 199k → <b>$0.60 / 1k</b></div>
         <div>200k+ → <b>$0.50 / 1k + 25% bonus</b></div>
     </div>
 </div>
 
 <script>
 let mode = "TR";
+
+/* 🎯 Animated slider */
+function updateSlider() {
+    const slider = document.getElementById("slider");
+    slider.style.transform = (mode === "TR") ? "translateX(0%)" : "translateX(100%)";
+}
+
+function setMode(m) {
+    mode = m;
+
+    document.getElementById("output").innerHTML = "";
+    document.getElementById("inputField").value = "";
+
+    if (mode === "TR") {
+        document.getElementById("modeTitle").innerText = "Training Receipts → Price";
+        document.getElementById("inputField").placeholder = "Enter TR (e.g. 100k, 100,000, 1m)";
+    } else {
+        document.getElementById("modeTitle").innerText = "Money → TR";
+        document.getElementById("inputField").placeholder = "Enter Money (e.g. 77, 100)";
+    }
+
+    updateSlider();
+}
 
 function parseInput(val) {
     val = val.toLowerCase().replace(/,/g, "").trim();
@@ -126,31 +222,12 @@ function format(num) {
     return num.toLocaleString();
 }
 
-function toggleMode() {
-    mode = (mode === "TR") ? "MONEY" : "TR";
-
-    document.getElementById("output").innerHTML = "";
-    document.getElementById("inputField").value = "";
-
-    if (mode === "TR") {
-        document.getElementById("modeTitle").innerText = "TR → Price";
-        document.getElementById("inputField").placeholder = "Enter TR (e.g. 100k, 100,000, 1m)";
-    } else {
-        document.getElementById("modeTitle").innerText = "Money → TR";
-        document.getElementById("inputField").placeholder = "Enter Money (e.g. 77, 100)";
-    }
-}
-
 function calculate() {
     let val = document.getElementById("inputField").value;
     let output = document.getElementById("output");
 
-    if (!val) {
-        output.innerHTML = "Enter a value.";
-        return;
-    }
+    if (!val) return output.innerHTML = "Enter a value.";
 
-    /* ================= TR → PRICE ================= */
     if (mode === "TR") {
         let x = parseInput(val);
 
@@ -177,10 +254,7 @@ function calculate() {
             <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:10px 0;">
             <div><b>Price:</b> $${price.toFixed(2)}</div>
         `;
-    }
-
-    /* ================= MONEY → TR ================= */
-    else {
+    } else {
         let m = parseFloat(val.replace(/,/g, ""));
 
         let base = (m / 0.50) * 1000;
@@ -199,6 +273,9 @@ function calculate() {
         `;
     }
 }
+
+/* init */
+updateSlider();
 </script>
 
 </body>
