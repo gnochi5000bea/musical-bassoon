@@ -106,8 +106,13 @@ function toggleMode() {
     document.getElementById("output").innerHTML = "";
     document.getElementById("inputField").value = "";
 
-    document.getElementById("modeTitle").innerText =
-        mode === "TR" ? "TR → Price" : "Money → TR";
+    if (mode === "TR") {
+        document.getElementById("modeTitle").innerText = "TR → Price";
+        document.getElementById("inputField").placeholder = "Enter TR (e.g. 100k, 100,000, 1m)";
+    } else {
+        document.getElementById("modeTitle").innerText = "Money → TR";
+        document.getElementById("inputField").placeholder = "Enter Money (e.g. 77, 100)";
+    }
 }
 
 /* =========================
