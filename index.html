@@ -141,7 +141,7 @@ input {
 
     <div class="tierBox">
         <b>Pricing Tiers</b><br>
-        1k–9k → $0.99 / 1k<br>
+        1k → $0.99 / 1k<br>
         2k → $0.84 / 1k<br>
         3k → $0.79 / 1k<br>
         4k+ → $0.74 / 1k<br>
@@ -230,18 +230,30 @@ function calculate() {
     /* ================= MONEY → TR ================= */
     else {
         let m = parseFloat(val.replace(/,/g, ""));
-
-        let base = (m / 0.50) * 1000;
+    
+        let pricePer1k;
+    
+        // 🛒 EBAY TIERS (match your TR pricing exactly)
+        if (m <= 0.99) pricePer1k = 0.99;
+        else if (m <= 1.68) pricePer1k = 0.84;   // ~2k range
+        else if (m <= 2.37) pricePer1k = 0.79;   // ~3k range
+        else if (m < 60) pricePer1k = 0.74;      // 4k–99k range
+        else if (m < 120) pricePer1k = 0.60;     // 100k–199k range
+        else pricePer1k = 0.50;                  // 200k+ bulk
+    
+        let baseTR = (m / pricePer1k) * 1000;
+    
         let bonus = 0;
-        let total = base;
-
-        if (base >= 200000) {
-            bonus = base * 0.25;
-            total = base + bonus;
+        let total = baseTR;
+    
+        // 🎁 200k+ bonus system
+        if (baseTR >= 200000) {
+            bonus = baseTR * 0.25;
+            total = baseTR + bonus;
         }
-
+    
         output.innerHTML = `
-            <div><span class="label">Base TR:</span> ${format(Math.floor(base))}</div>
+            <div><span class="label">Base TR:</span> ${format(Math.floor(baseTR))}</div>
             <div><span class="label">Bonus TR:</span> ${format(Math.floor(bonus))}</div>
             <div><span class="label">Total TR:</span> ${format(Math.floor(total))}</div>
         `;
