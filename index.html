@@ -3,67 +3,102 @@
 <head>
 <meta charset="UTF-8">
 <title>TR Bulk Calculator</title>
+
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        background: #0f0f0f;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
-    .card {
-        background: #1a1a1a;
-        padding: 25px;
-        border-radius: 12px;
-        width: 320px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
-        text-align: center;
-    }
-    input {
-        width: 100%;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 6px;
-        border: none;
-        outline: none;
-    }
-    button {
-        width: 100%;
-        padding: 10px;
-        margin-top: 10px;
-        background: #4CAF50;
-        border: none;
-        border-radius: 6px;
-        color: white;
-        font-weight: bold;
-        cursor: pointer;
-    }
-    .toggle {
-        background: #333;
-    }
-    .output {
-        margin-top: 15px;
-        font-size: 18px;
-    }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at top, #1b1b1b, #0a0a0a);
+    color: white;
+}
+
+.card {
+    width: 340px;
+    padding: 22px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    text-align: center;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.3);
+    color: white;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.primary { background: #4CAF50; }
+.toggle { background: rgba(255,255,255,0.1); color: white; }
+
+.output {
+    margin-top: 15px;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+    background: rgba(0,0,0,0.25);
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.label { opacity: 0.7; font-size: 12px; }
 </style>
 </head>
+
 <body>
 
 <div class="card">
     <h2 id="modeTitle">TR → Price</h2>
 
-    <input id="inputField" placeholder="Enter TR (e.g. 100k)">
+    <input id="inputField" placeholder="Enter TR (e.g. 100k, 100,000, 1m)">
 
-    <button onclick="calculate()">Calculate</button>
+    <button class="primary" onclick="calculate()">Calculate</button>
     <button class="toggle" onclick="toggleMode()">Switch Mode</button>
 
     <div class="output" id="output"></div>
 </div>
 
 <script>
-let mode = "TR"; // TR or MONEY
+let mode = "TR";
+
+/* =========================
+   PARSE INPUT (NOW FIXED)
+========================= */
+function parseInput(val) {
+    val = val.toLowerCase().replace(/,/g, "").trim();
+
+    if (val.endsWith("k")) return parseFloat(val) * 1000;
+    if (val.endsWith("m")) return parseFloat(val) * 1000000;
+
+    return parseFloat(val);
+}
+
+function format(num) {
+    return num.toLocaleString();
+}
 
 function toggleMode() {
     mode = (mode === "TR") ? "MONEY" : "TR";
@@ -71,26 +106,13 @@ function toggleMode() {
     document.getElementById("output").innerHTML = "";
     document.getElementById("inputField").value = "";
 
-    if (mode === "TR") {
-        document.getElementById("modeTitle").innerText = "TR → Price";
-        document.getElementById("inputField").placeholder = "Enter TR (e.g. 100k)";
-    } else {
-        document.getElementById("modeTitle").innerText = "Money → TR";
-        document.getElementById("inputField").placeholder = "Enter Money ($)";
-    }
+    document.getElementById("modeTitle").innerText =
+        mode === "TR" ? "TR → Price" : "Money → TR";
 }
 
-function parseInput(val) {
-    val = val.toLowerCase().trim();
-    if (val.endsWith('k')) return parseFloat(val) * 1000;
-    if (val.endsWith('m')) return parseFloat(val) * 1000000;
-    return parseFloat(val);
-}
-
-function formatNumber(num) {
-    return num.toLocaleString();
-}
-
+/* =========================
+   CALCULATE
+========================= */
 function calculate() {
     let val = document.getElementById("inputField").value;
     let output = document.getElementById("output");
@@ -100,28 +122,57 @@ function calculate() {
         return;
     }
 
+    /* =====================
+       TR → PRICE
+    ===================== */
     if (mode === "TR") {
         let x = parseInput(val);
+
+        let baseTR = x;
+        let bonusTR = 0;
+        let purchased = x;
+
+        if (x >= 200000) {
+            purchased = x / 1.25;
+            bonusTR = x - purchased;
+        }
+
         let price;
 
         if (x < 10000) price = (x/1000)*2;
         else if (x < 100000) price = (x/1000)*0.70;
         else if (x < 200000) price = (x/1000)*0.60;
-        else price = ((x/1.25)/1000)*0.50;
+        else price = (purchased/1000)*0.50;
 
-        output.innerHTML = `Price: $${price.toFixed(2)}`;
+        output.innerHTML = `
+            <div><span class="label">Base TR:</span> ${format(Math.floor(purchased))}</div>
+            <div><span class="label">Bonus TR:</span> ${format(Math.floor(bonusTR))}</div>
+            <div><span class="label">Total TR:</span> ${format(Math.floor(baseTR))}</div>
+            <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:10px 0;">
+            <div><b>Price:</b> $${price.toFixed(2)}</div>
+        `;
     }
 
+    /* =====================
+       MONEY → TR
+    ===================== */
     else {
-        let m = parseFloat(val);
-        let purchased = (m / 0.50) * 1000;
-        let total;
+        let m = parseFloat(val.replace(/,/g, ""));
 
-        if (purchased >= 200000) total = purchased * 1.25;
-        else if (purchased >= 100000) total = (m / 0.60) * 1000;
-        else total = (m / 0.70) * 1000;
+        let base = (m / 0.50) * 1000;
+        let bonus = 0;
+        let total = base;
 
-        output.innerHTML = `You get: ${formatNumber(Math.floor(total))} TR`;
+        if (base >= 200000) {
+            bonus = base * 0.25;
+            total = base + bonus;
+        }
+
+        output.innerHTML = `
+            <div><span class="label">Base TR:</span> ${format(Math.floor(base))}</div>
+            <div><span class="label">Bonus TR:</span> ${format(Math.floor(bonus))}</div>
+            <div><span class="label">Total TR:</span> ${format(Math.floor(total))}</div>
+        `;
     }
 }
 </script>
