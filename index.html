@@ -230,23 +230,33 @@ function calculate() {
 
     if (mode === "TR") {
         let x = parseInput(val);
-
+    
         let base = x;
         let bonus = 0;
         let purchased = x;
-
-        if (x >= 200000) {
-            purchased = x / 1.25;
-            bonus = x - purchased;
-        }
-
         let price;
-
-        if (x < 10000) price = (x/1000)*2;
-        else if (x < 100000) price = (x/1000)*0.70;
-        else if (x < 200000) price = (x/1000)*0.60;
-        else price = (purchased/1000)*0.50;
-
+    
+        // 📦 BULK TIER (100k+)
+        if (x >= 100000) {
+            if (x >= 200000) {
+                purchased = x / 1.25;
+                bonus = x - purchased;
+                price = (purchased / 1000) * 0.50;
+            } else {
+                price = (x / 1000) * 0.60;
+            }
+        }
+    
+        // 🛒 EBAY TIERS (<100k)
+        else {
+            let k = Math.floor(x / 1000);
+    
+            if (k <= 1) price = (x / 1000) * 0.99;
+            else if (k === 2) price = (x / 1000) * 0.84;
+            else if (k === 3) price = (x / 1000) * 0.79;
+            else price = (x / 1000) * 0.74;
+        }
+    
         output.innerHTML = `
             <div><span class="label">Base TR:</span> ${format(Math.floor(purchased))}</div>
             <div><span class="label">Bonus TR:</span> ${format(Math.floor(bonus))}</div>
@@ -254,24 +264,7 @@ function calculate() {
             <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:10px 0;">
             <div><b>Price:</b> $${price.toFixed(2)}</div>
         `;
-    } else {
-        let m = parseFloat(val.replace(/,/g, ""));
-
-        let base = (m / 0.50) * 1000;
-        let bonus = 0;
-        let total = base;
-
-        if (base >= 200000) {
-            bonus = base * 0.25;
-            total = base + bonus;
-        }
-
-        output.innerHTML = `
-            <div><span class="label">Base TR:</span> ${format(Math.floor(base))}</div>
-            <div><span class="label">Bonus TR:</span> ${format(Math.floor(bonus))}</div>
-            <div><span class="label">Total TR:</span> ${format(Math.floor(total))}</div>
-        `;
-    }
+    }                                         
 }
 
 /* init */
