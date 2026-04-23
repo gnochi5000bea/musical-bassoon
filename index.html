@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TR Bulk Calculator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #0f0f0f;
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .card {
+        background: #1a1a1a;
+        padding: 25px;
+        border-radius: 12px;
+        width: 320px;
+        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        text-align: center;
+    }
+    input {
+        width: 100%;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+    }
+    button {
+        width: 100%;
+        padding: 10px;
+        margin-top: 10px;
+        background: #4CAF50;
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .toggle {
+        background: #333;
+    }
+    .output {
+        margin-top: 15px;
+        font-size: 18px;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2 id="modeTitle">TR → Price</h2>
+
+    <input id="inputField" placeholder="Enter TR (e.g. 100k)">
+
+    <button onclick="calculate()">Calculate</button>
+    <button class="toggle" onclick="toggleMode()">Switch Mode</button>
+
+    <div class="output" id="output"></div>
+</div>
+
+<script>
+let mode = "TR"; // TR or MONEY
+
+function toggleMode() {
+    mode = (mode === "TR") ? "MONEY" : "TR";
+
+    document.getElementById("output").innerHTML = "";
+    document.getElementById("inputField").value = "";
+
+    if (mode === "TR") {
+        document.getElementById("modeTitle").innerText = "TR → Price";
+        document.getElementById("inputField").placeholder = "Enter TR (e.g. 100k)";
+    } else {
+        document.getElementById("modeTitle").innerText = "Money → TR";
+        document.getElementById("inputField").placeholder = "Enter Money ($)";
+    }
+}
+
+function parseInput(val) {
+    val = val.toLowerCase().trim();
+    if (val.endsWith('k')) return parseFloat(val) * 1000;
+    if (val.endsWith('m')) return parseFloat(val) * 1000000;
+    return parseFloat(val);
+}
+
+function formatNumber(num) {
+    return num.toLocaleString();
+}
+
+function calculate() {
+    let val = document.getElementById("inputField").value;
+    let output = document.getElementById("output");
+
+    if (!val) {
+        output.innerHTML = "Enter a value.";
+        return;
+    }
+
+    if (mode === "TR") {
+        let x = parseInput(val);
+        let price;
+
+        if (x < 10000) price = (x/1000)*2;
+        else if (x < 100000) price = (x/1000)*0.70;
+        else if (x < 200000) price = (x/1000)*0.60;
+        else price = ((x/1.25)/1000)*0.50;
+
+        output.innerHTML = `Price: $${price.toFixed(2)}`;
+    }
+
+    else {
+        let m = parseFloat(val);
+        let purchased = (m / 0.50) * 1000;
+        let total;
+
+        if (purchased >= 200000) total = purchased * 1.25;
+        else if (purchased >= 100000) total = (m / 0.60) * 1000;
+        else total = (m / 0.70) * 1000;
+
+        output.innerHTML = `You get: ${formatNumber(Math.floor(total))} TR`;
+    }
+}
+</script>
+
+</body>
+</html>
