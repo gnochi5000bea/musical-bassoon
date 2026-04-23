@@ -28,6 +28,10 @@ body {
     text-align: center;
 }
 
+h2 {
+    margin-bottom: 10px;
+}
+
 input {
     width: 100%;
     padding: 12px;
@@ -65,6 +69,24 @@ button {
 }
 
 .label { opacity: 0.7; font-size: 12px; }
+
+/* 📊 Pricing Box */
+.tierBox {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.tierBox h3 {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    opacity: 0.8;
+}
 </style>
 </head>
 
@@ -79,14 +101,18 @@ button {
     <button class="toggle" onclick="toggleMode()">Switch Mode</button>
 
     <div class="output" id="output"></div>
+
+    <!-- 📊 PRICING TIERS -->
+    <div class="tierBox">
+        <h3>Pricing Tiers</h3>
+        <div>100k – 199,000 → <b>$0.60 / 1k</b></div>
+        <div>200k+ → <b>$0.50 / 1k + 25% bonus</b></div>
+    </div>
 </div>
 
 <script>
 let mode = "TR";
 
-/* =========================
-   PARSE INPUT (NOW FIXED)
-========================= */
 function parseInput(val) {
     val = val.toLowerCase().replace(/,/g, "").trim();
 
@@ -115,9 +141,6 @@ function toggleMode() {
     }
 }
 
-/* =========================
-   CALCULATE
-========================= */
 function calculate() {
     let val = document.getElementById("inputField").value;
     let output = document.getElementById("output");
@@ -127,19 +150,17 @@ function calculate() {
         return;
     }
 
-    /* =====================
-       TR → PRICE
-    ===================== */
+    /* ================= TR → PRICE ================= */
     if (mode === "TR") {
         let x = parseInput(val);
 
-        let baseTR = x;
-        let bonusTR = 0;
+        let base = x;
+        let bonus = 0;
         let purchased = x;
 
         if (x >= 200000) {
             purchased = x / 1.25;
-            bonusTR = x - purchased;
+            bonus = x - purchased;
         }
 
         let price;
@@ -151,16 +172,14 @@ function calculate() {
 
         output.innerHTML = `
             <div><span class="label">Base TR:</span> ${format(Math.floor(purchased))}</div>
-            <div><span class="label">Bonus TR:</span> ${format(Math.floor(bonusTR))}</div>
-            <div><span class="label">Total TR:</span> ${format(Math.floor(baseTR))}</div>
+            <div><span class="label">Bonus TR:</span> ${format(Math.floor(bonus))}</div>
+            <div><span class="label">Total TR:</span> ${format(Math.floor(base))}</div>
             <hr style="border:0;border-top:1px solid rgba(255,255,255,0.1);margin:10px 0;">
             <div><b>Price:</b> $${price.toFixed(2)}</div>
         `;
     }
 
-    /* =====================
-       MONEY → TR
-    ===================== */
+    /* ================= MONEY → TR ================= */
     else {
         let m = parseFloat(val.replace(/,/g, ""));
 
